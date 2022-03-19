@@ -4,10 +4,11 @@ import (
 	"encoding/csv"
 	"os"
 
-	"github.com/Picus-Security-Golang-Backend-Bootcamp/homework-3-ezgiustunel/models"
+	"github.com/Picus-Security-Golang-Backend-Bootcamp/homework-3-ezgiustunel/service/domain/book"
 )
 
-func ReadCsv(filename string) ([]models.Book, error) {
+// ReadCsv: reads csv file
+func ReadCsv(filename string) ([]book.Book, error) {
 	f, err := os.Open(filename)
 	if err != nil {
 		return nil, err
@@ -19,7 +20,7 @@ func ReadCsv(filename string) ([]models.Book, error) {
 	if err != nil {
 		return nil, err
 	}
-	var result []models.Book
+	var result []book.Book
 
 	for _, line := range lines[1:] {
 		id, _ := ConvertStringToInt(line[0])
@@ -27,8 +28,8 @@ func ReadCsv(filename string) ([]models.Book, error) {
 		pageNumber, _ := ConvertStringToInt(line[3])
 		price, _ := ConvertStringToFloat64(line[4])
 
-		data := models.Book{
-			Id:          id,
+		data := book.Book{
+			ID:          id,
 			Name:        line[1],
 			StockNumber: stockNumber,
 			PageNumber:  pageNumber,

@@ -7,63 +7,11 @@ import (
 	"strings"
 
 	"github.com/Picus-Security-Golang-Backend-Bootcamp/homework-3-ezgiustunel/helper"
-	"github.com/Picus-Security-Golang-Backend-Bootcamp/homework-3-ezgiustunel/models"
 	"github.com/Picus-Security-Golang-Backend-Bootcamp/homework-3-ezgiustunel/service/domain/book"
 	"github.com/Picus-Security-Golang-Backend-Bootcamp/homework-3-ezgiustunel/service/infrastructure"
 )
 
-// var books, authors []string
-
-// func init() {
-// 	//book list
-// 	books = []string{"Simyaci",
-// 		"Bab-i Esrar",
-// 		"Nar Ağaci",
-// 		"Fareler ve İnsanlar",
-// 		"Kürk Mantolu Madonna",
-// 		"Hayvan Çiftliği",
-// 		"Şeker Portakali",
-// 		"Uçurtma Avcisi",
-// 		"Suç ve Ceza",
-// 		"Serenad",
-// 		"Yeraltindan Notlar",
-// 		"Toprak Ana",
-// 		"Fatih Harbiye",
-// 		"Saatleri Ayarlama Enstitüsü",
-// 		"Acimak",
-// 		"Ateşten Gömlek",
-// 		"Çocukluğum",
-// 		"Aşk",
-// 		"Kuyucakli Yusuf",
-// 		"Arkadaş",
-// 		"Momo",
-// 	}
-
-// 	//author list
-// 	authors = []string{"Paulo Coelho",
-// 		"Ahmet Ümit",
-// 		"Nazan Bekiroğlu",
-// 		"John Steinback",
-// 		"Sabahattin Ali",
-// 		"George Orwell",
-// 		"Mauro Vasgencelos",
-// 		"Halid Hüseyni",
-// 		"Fyodor Dostoyevski",
-// 		"Zülfü Livaneli",
-// 		"Fyodor Dostoyevski",
-// 		"Cengiz Aytmatov",
-// 		"Peyami Safa",
-// 		"Ahmet Hamdi Tanpinar",
-// 		"Reşat Nuri Güntekin",
-// 		"Halide Edip Adivar",
-// 		"Maksim Gorki",
-// 		"Elif Şafak",
-// 		"Sabahattin Ali",
-// 		"Gorki",
-// 		"Michael Ende",
-// 	}
-// }
-var bookList []models.Book
+var bookList []book.Book
 var repository *book.BookRepository
 
 const list = "list"
@@ -104,6 +52,7 @@ func main() {
 	}
 }
 
+// listBooks: list all books
 func listBooks() {
 	books := repository.FindAll()
 
@@ -112,6 +61,7 @@ func listBooks() {
 	}
 }
 
+// searchBook: searches the books by given input
 func searchBook(args []string) {
 	if len(args) < 3 {
 		helper.PrintMessagesToConsole()
@@ -119,13 +69,19 @@ func searchBook(args []string) {
 	}
 
 	searchedBook := strings.Join(args[2:], " ")
-	books := repository.FindByBookName(searchedBook)
+	books, err := repository.FindByBookName(searchedBook)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
 
 	for _, book := range books {
 		fmt.Printf("name: %s, author: %s\n", book.Name, book.AuthorName)
 	}
 }
 
+// buyBook: updates stock number
 func buyBook(args []string) {
 	if len(args) < 4 {
 		helper.PrintMessagesToConsole()
@@ -144,14 +100,22 @@ func buyBook(args []string) {
 		return
 	}
 
-	book := repository.GetById(id)
+	book, err := repository.FindById(id)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
 
-	book.StockNumber -= bookNumber
+	_, errStock := book.DecreaseStockNumber(bookNumber)
 
+	if errStock != nil {
+		fmt.Println(errStock.Error())
+		return
+	}
 	repository.Update(book)
-
 }
 
+// deleteBook: delete book from db
 func deleteBook(args []string) {
 	if len(args) != 3 {
 		helper.PrintMessagesToConsole()
